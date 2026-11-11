@@ -1,0 +1,46 @@
+name: Build Duminda Auto Traders APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '**.zip'
+      - '.github/workflows/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Extract project ZIP
+        run: |
+          mkdir project
+          unzip -q Duminda_Auto_Traders_Petrol_Fix_GitHub_Upload.zip -d project
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        working-directory: project/duminda_v2
+        run: flutter pub get
+
+      - name: Build APK
+        working-directory: project/duminda_v2
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Duminda-Auto-Traders-APK
+          path: project/duminda_v2/build/app/outputs/flutter-apk/app-release.apk
